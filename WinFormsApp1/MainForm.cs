@@ -1,13 +1,13 @@
 namespace WinFormsApp1
 {
-    
 
-    public partial class Form1 : Form    
+
+    public partial class MainForm : Form
     {
         private AppSettings appSettings;
 
-        public Form1()
-        {            
+        public MainForm()
+        {
             InitializeComponent();
             appSettings = AppSettings.Instance;
         }
@@ -20,7 +20,7 @@ namespace WinFormsApp1
             // 콤보 박스 항목 추가
             comboBox1.Items.Clear();
             comboBox1.Items.AddRange(appSettings.Config.Fruits.ToArray());
-            
+
             if (appSettings.Config.SelectedFruitsIndex >= 0 && appSettings.Config.SelectedFruitsIndex < comboBox1.Items.Count)
                 comboBox1.SelectedIndex = appSettings.Config.SelectedFruitsIndex;
             else
@@ -30,7 +30,7 @@ namespace WinFormsApp1
         }
 
         protected override void OnFormClosing(FormClosingEventArgs e)
-        {            
+        {
             appSettings.Config.SelectedFruitsIndex = comboBox1.SelectedIndex;
             appSettings.SaveSettings();
             base.OnFormClosing(e);
@@ -38,7 +38,7 @@ namespace WinFormsApp1
 
         private void ComboBox1_Validating(object? sender, System.ComponentModel.CancelEventArgs e)
         {
-            configValidate();            
+            configValidate();
         }
 
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
@@ -63,5 +63,10 @@ namespace WinFormsApp1
             }
         }
 
+        private void BobaeMenuItem_Click(object sender, EventArgs e)
+        {
+            BobaeDreamForm form = new BobaeDreamForm();
+            form.ShowDialog(this);
+        }
     }
 }
