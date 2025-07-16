@@ -10,31 +10,74 @@ using AngleSharp.Dom;
 using System.Net.Http;
 using System.Data.SQLite;
 using System.Text.RegularExpressions;
+using System.ComponentModel;
 
 namespace WinFormsApp1.Common
 {
+    public class BestPost
+    {
+        public string? No { get; set; }
+        public string? Title { get; set; }
+        public string? SubUrl { get; set; }
+        public string? Author { get; set; }
+        public string? commentCount { get; set; }
+        public string? recommendCount { get; set; }
+        public string? viewCount { get; set; }
+
+        public override string ToString()
+        {
+            return $"{Title} by {commentCount} on {recommendCount} - {viewCount}";
+        }
+    }
+
     public class BobaeDream
     {
-        public class BestPost
+        public List<BestPost> RetrieveBestPosts()
         {
-            public string No { get; set; }
-            public string Title { get; set; }
-            public string SubUrl { get; set; }
-            public string Author { get; set; }
-            public string commentCount { get; set; }
-            public string recommendCount{ get; set; }
-            public string viewCount { get; set; }
-            
-            public override string ToString()
+            // 비동기 메서드 호출을 동기적으로 처리하기 위해 Task.Run 사용
+            try
             {
-                return $"{Title} by {commentCount} on {recommendCount} - {viewCount}";
+                string connStr = @"Data Source=C:\wing\C#\WinFormsApp1\WinFormsApp1\bobaeBest.db";
+                using (var conn = new SQLiteConnection(connStr))
+                {
+                    conn.Open();
+
+                    string sql = $"SELECT * FROM TB_BEST_ARTICLE Order by No Desc";
+
+                    using (var cmd = new SQLiteCommand(sql, conn))
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        var posts = new List<BestPost>();
+                        while (reader.Read())
+                        {
+                            var post = new BestPost
+                            {
+                                No = reader["No"].ToString(),
+                                Title = reader["Title"].ToString(),
+                                SubUrl = reader["URL"].ToString(),
+                                Author = reader["Author"].ToString(),
+                                recommendCount = reader["RECOMM_CNT"].ToString(),
+                                viewCount = reader["VIEW_CNT"].ToString(),
+                            };
+                            posts.Add(post);
+                        }
+                        return posts;
+                    }                        
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"DB 저장 오류: {ex.Message}");
+                return new List<BestPost>();
             }
         }
 
 
-        public async void GetBestPosts()        
+        public async Task<List<BestPost>> GetBestPosts()        
         {
             var url = "https://www.bobaedream.co.kr/list?code=best";
+            var result = new List<BestPost>();
+
             using (WebClient client = new WebClient())
             {
                 try
@@ -85,6 +128,7 @@ namespace WinFormsApp1.Common
                             viewCount = viewCount,
                         };
 
+                        result.Add(post);
                         SaveDb(post);
 
                         Debug.WriteLine(post.ToString());
@@ -96,10 +140,8 @@ namespace WinFormsApp1.Common
                     Debug.WriteLine($"오류 발생: {ex.Message}");
                 }
             }
-            // 여기에 베스트 게시글을 가져오는 로직을 구현합니다.
-            // 예시로, 단순히 콘솔에 메시지를 출력합니다.
-            Console.WriteLine("베스트 게시글을 가져오는 중...");
-            // 실제 구현에서는 웹 요청 등을 통해 데이터를 가져올 수 있습니다.
+            
+            return result;             
         }
 
         public void SaveDb(BestPost post)
@@ -144,8 +186,7 @@ namespace WinFormsApp1.Common
                 {
                     Debug.WriteLine($"오류 발생: {ex.Message}");
                 }
-            }
-            
+            }            
         }
     }
 }

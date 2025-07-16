@@ -27,6 +27,8 @@ namespace WinFormsApp1
                 comboBox1.SelectedIndex = 0; // ±âº»°ª
 
             comboBox1.Validating += ComboBox1_Validating;
+
+            BobaeMenuItem_Click(null, null);
         }
 
         protected override void OnFormClosing(FormClosingEventArgs e)

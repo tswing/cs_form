@@ -12,7 +12,7 @@ namespace WinFormsApp1
             // see https://aka.ms/applicationconfiguration.
             ApplicationConfiguration.Initialize();
             AppSettings appSettings = AppSettings.Instance;
-            Application.Run(new BobaeDreamForm());
+            Application.Run(new MainForm());
         }
     }
 }
